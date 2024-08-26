@@ -1,0 +1,130 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f8ff;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  position: relative;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  text-align: center;
+}
+
+h1 {
+  color: #333333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+select {
+  padding: 10px;
+  margin: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+}
+
+#timer {
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+.inventory-section {
+  margin-top: 20px;
+}
+
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0;
+}
+
+.inventory-item {
+  background-color: #e0ffff;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.inventory-item.selected {
+  background-color: #b0e0e6;
+}
+
+.inventory-item:hover {
+  background-color: #afeeee;
+}
+
+.inventory-item p {
+  margin: 5px 0;
+}
+
+.probability-window {
+  position: fixed;
+  right: -200px;
+  top: 20px;
+  width: 200px;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+}
+
+.probability-window.open {
+  right: 0;
+}
+
+.probability-window h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.probability-window p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.collapse-button {
+  background-color: #007bff;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: -50px;
+}
