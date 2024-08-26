@@ -54,50 +54,58 @@ wss.on('connection', (ws) => {
 });
 
 function handleJoin(ws, playerId) {
+    console.log(`New player registered: ${playerId}`);
     if (!players[playerId]) {
-        players[playerId] = {
-            id: playerId,
-            inventory: {},
-            ipBalance: 10,
-            fishBalance: 10,
-        };
-        console.log(`New player registered: ${playerId}`);
+      players[playerId] = {
+        id: playerId,
+        inventory: {},
+        ipBalance: 10,
+        fishBalance: 10,
+      };
+      console.log(`Player ${playerId} registered.`);
     } else {
-        console.log(`Player ${playerId} reconnected.`);
+      console.log(`Player ${playerId} reconnected.`);
     }
     ws.send(JSON.stringify({ type: 'update', playerData: players[playerId] }));
-}
+  }
+  
 
 
-function handleFishing(ws, data) {
-    const player = players[data.playerId];
+function handleFishing(ws, playerId, selectedBait) {
+    console.log(`Handling fishing for player: ${playerId}`);
+    
+    const player = players[playerId];
     if (!player) {
-        ws.send(JSON.stringify({ type: 'error', message: "Player not found!" }));
-        return;
+      console.log(`Player ${playerId} not found in server records.`);
+      ws.send(JSON.stringify({ type: 'error', message: "Player not found!" }));
+      return;
     }
-
-    // Ensure balances and inventory are updated correctly
+  
     if (player.ipBalance >= 1 && player.fishBalance >= 1) {
-        // Deduct IP and FISH tokens
-        player.ipBalance = data.ipBalance;
-        player.fishBalance = data.fishBalance;
-        fishPool = data.fishPool;
-
-        // Update the player's inventory
-        player.inventory = data.inventory;
-
-        // Send the updated player data back to the client
-        ws.send(JSON.stringify({ type: 'update', playerData: player }));
-
-        // Broadcast the updated player data to all clients
-        broadcastUpdate();
-
-        console.log(`Player ${data.playerId} fished and caught ${data.newCatch}.`);
-        console.log(`Updated IP Balance: ${player.ipBalance}, FISH Balance: ${player.fishBalance}, Fish Pool: ${fishPool}`);
+      player.ipBalance -= 1;
+      player.fishBalance -= 1;
+      fishPool += 1;
+  
+      const newCatch = determineCatch(selectedBait);
+      player.inventory[newCatch] = (player.inventory[newCatch] || 0) + 1;
+  
+      if (selectedBait && player.inventory[selectedBait] > 0) {
+        player.inventory[selectedBait] -= 1;
+        if (player.inventory[selectedBait] === 0) {
+          delete player.inventory[selectedBait];
+        }
+      }
+  
+      ws.send(JSON.stringify({ type: 'update', playerData: player }));
+      broadcastUpdate();
     } else {
-        ws.send(JSON.stringify({ type: 'error', message: "Not enough tokens to fish!" }));
+      ws.send(JSON.stringify({ type: 'error', message: "Not enough tokens to fish!" }));
     }
-}
+  }
+  
+
+
+
 
 
 

@@ -20,48 +20,47 @@ function App() {
     const websocket = new WebSocket('ws://localhost:8080');
 
     websocket.onopen = () => {
-      console.log('WebSocket connection established');
-      setWs(websocket);
-      websocket.send(JSON.stringify({ type: 'join', playerId }));
+        console.log('WebSocket connection established');
+        setWs(websocket);
+        websocket.send(JSON.stringify({ type: 'join', playerId }));
     };
 
     websocket.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-      switch (data.type) {
-        case 'update':
-          setPlayerData(data.playerData);
-          break;
-        case 'countdown':
-          setDistributionTimer(data.time);
-          break;
-        case 'distribution':
-          setFishers(data.updatedFishers);
-          setFishPool(data.fishPool);
-          console.log(`Distributed ${data.reward} FISH tokens to winners.`);
-          break;
-        case 'error':
-          alert(data.message);
-          break;
-        default:
-          console.log(`Unknown message type: ${data.type}`);
-      }
+        const data = JSON.parse(message.data);
+        switch (data.type) {
+            case 'update':
+                setPlayerData(data.playerData);
+                break;
+            case 'countdown':
+                setDistributionTimer(data.time);
+                break;
+            case 'distribution':
+                setFishers(data.updatedFishers);
+                setFishPool(data.fishPool);
+                break;
+            case 'error':
+                alert(data.message);
+                break;
+            default:
+                console.log(`Unknown message type: ${data.type}`);
+        }
     };
 
     websocket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+        console.error('WebSocket error:', error);
     };
 
     websocket.onclose = () => {
-      console.log('WebSocket connection closed');
+        console.log('WebSocket connection closed');
     };
 
     return () => {
-      console.log('Cleaning up WebSocket connection');
-      if (websocket.readyState === WebSocket.OPEN || websocket.readyState === WebSocket.CONNECTING) {
-        websocket.close();
-      }
+        if (websocket.readyState === WebSocket.OPEN || websocket.readyState === WebSocket.CONNECTING) {
+            websocket.close();
+        }
     };
-  }, [playerId]);
+}, [playerId]);
+
 
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -71,22 +70,6 @@ function App() {
     return () => clearInterval(countdown);
   }, []);
 
-  const calculateRarestFish = (inventory) => {
-    const rarityScore = {
-      mythical: 7,
-      legendary: 6,
-      epic: 5,
-      superRare: 4,
-      rare: 3,
-      uncommon: 2,
-      common: 1,
-    };
-
-    return Object.keys(inventory).reduce((total, fish) => {
-      return total + rarityScore[fish] * inventory[fish];
-    }, 0);
-  };
-
   const claimIpToken = () => {
     setIpBalance((prevBalance) => prevBalance + 1);
   };
@@ -95,55 +78,37 @@ function App() {
     setFishBalance((prevBalance) => prevBalance + 1);
   };
 
-  const handleFishing = (newCatch) => {
-    console.log("handleFishing called with newCatch:", newCatch);
-
-    // Update the balances before setting the state
-    const updatedIpBalance = ipBalance - 1;
-    const updatedFishBalance = fishBalance - 1;
-    const updatedFishPool = fishPool + 1;
-
-    // Update the inventory with the new catch
-    const updatedInventory = { ...inventory, [newCatch]: (inventory[newCatch] || 0) + 1 };
-
-    // Set the updated state locally
-    setIpBalance(updatedIpBalance);
-    setFishBalance(updatedFishBalance);
-    setFishPool(updatedFishPool);
-    setInventory(updatedInventory);
-
-    console.log("handleFishing - Updated state:", {
-        ipBalance: updatedIpBalance,
-        fishBalance: updatedFishBalance,
-        fishPool: updatedFishPool,
-        inventory: updatedInventory,
-    });
-
-    // Send the updated state to the server
+  const handleFishing = (selectedBait) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-            type: 'fish',
-            playerId,
-            newCatch,
-            inventory: updatedInventory,
-            ipBalance: updatedIpBalance,
-            fishBalance: updatedFishBalance,
-            fishPool: updatedFishPool,
-        }));
-        console.log("Fishing message sent via WebSocket.");
+      ws.send(JSON.stringify({
+        type: 'fish',
+        playerId,  // Ensure playerId is sent to the server
+        selectedBait,
+      }));
+      console.log("Fishing message sent via WebSocket.");
     } else {
-        console.error('WebSocket is not connected or not open.');
+      console.error('WebSocket is not connected or not open.');
     }
-};
-
-
-  const setPlayerData = (data) => {
-    setInventory((prevInventory) => ({ ...prevInventory, ...data.inventory }));
-    setIpBalance(data.ipBalance ?? ipBalance);
-    setFishBalance(data.fishBalance ?? fishBalance);
-    setFishPool(data.fishPool ?? fishPool);
-    setFishers(data.fishers ?? fishers);
   };
+
+
+// const setPlayerData = (data) => {
+//     setInventory((prevInventory) => ({ ...prevInventory, ...data.inventory }));
+//     setIpBalance(data.ipBalance ?? ipBalance);
+//     setFishBalance(data.fishBalance ?? fishBalance);
+//     setFishPool(data.fishPool ?? fishPool);
+//     setFishers(data.fishers ?? fishers);
+// };
+
+
+const setPlayerData = (data) => {
+    setInventory(data.inventory || {});
+    setIpBalance(data.ipBalance || 0);
+    setFishBalance(data.fishBalance || 0);
+    setFishPool(data.fishPool || 0);
+    setFishers(data.fishers || []);
+    setSelectedBait(null); // Reset the selected bait after fishing
+};
 
   return (
     <div className="container">
