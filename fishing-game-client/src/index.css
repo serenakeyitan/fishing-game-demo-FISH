@@ -128,3 +128,13 @@ select {
   top: 10px;
   left: -50px;
 }
+
+.round-counter {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  color: #333;
+}
+

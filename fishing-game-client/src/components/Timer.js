@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 function Timer() {
-  const [timeLeft, setTimeLeft] = useState(Math.floor(Math.random() * 6) + 5);
+  const [timeLeft, setTimeLeft] = useState(Math.floor(Math.random() * 4) + 3);
 
   useEffect(() => {
     if (timeLeft === 0) return;

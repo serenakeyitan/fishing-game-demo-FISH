@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const fishProbabilities = {
   common: 50,
@@ -20,8 +20,12 @@ const baitInfluence = {
   mythical: { uncommon: 40, rare: 30, superRare: 20, epic: 15, legendary: 10, mythical: 5 },
 };
 
-function ProbabilityWindow({ selectedBait }) {
-  const [isOpen, setIsOpen] = useState(false);
+function ProbabilityWindow({ selectedBait, isOpen }) {
+  const [isWindowOpen, setIsWindowOpen] = useState(isOpen);
+
+  useEffect(() => {
+    setIsWindowOpen(isOpen);
+  }, [isOpen]);
 
   const calculateProbabilities = () => {
     const probabilities = {};
@@ -36,11 +40,11 @@ function ProbabilityWindow({ selectedBait }) {
   const probabilities = calculateProbabilities();
 
   return (
-    <div className={`probability-window ${isOpen ? 'open' : ''}`}>
-      <button className="collapse-button" onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? 'Close' : 'Open'}
+    <div className={`probability-window ${isWindowOpen ? 'open' : ''}`}>
+      <button className="collapse-button" onClick={() => setIsWindowOpen(!isWindowOpen)}>
+        {isWindowOpen ? 'Close' : 'Open'}
       </button>
-      {isOpen && (
+      {isWindowOpen && (
         <>
           <h3>Probabilities</h3>
           {selectedBait ? (
